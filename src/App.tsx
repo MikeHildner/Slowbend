@@ -7,6 +7,7 @@ import Waveform from "./components/Waveform";
 import Transport from "./components/Transport";
 import TempoControl from "./components/TempoControl";
 import PitchControl from "./components/PitchControl";
+import VolumeControl from "./components/VolumeControl";
 
 export default function App() {
   const engineRef = useRef<PlaybackEngine | null>(null);
@@ -23,6 +24,8 @@ export default function App() {
   const [cents, setCents] = useState(0);
   const [loop, setLoop] = useState<LoopRegion | null>(null);
   const [loopEnabled, setLoopEnabled] = useState(true);
+  const [volume, setVolume] = useState(100);
+  const [muted, setMuted] = useState(false);
 
   // re-render the time display while playing
   const [, setTick] = useState(0);
@@ -102,6 +105,20 @@ export default function App() {
     void engineRef.current?.setLoop(region);
   }, []);
 
+  const handleVolumeChange = useCallback((v: number) => {
+    setVolume(v);
+    setMuted(false); // dragging the slider always unmutes
+    engineRef.current?.setVolume(v / 100);
+  }, []);
+
+  const handleMuteToggle = useCallback(() => {
+    setMuted((m) => {
+      const next = !m;
+      engineRef.current?.setVolume(next ? 0 : volume / 100);
+      return next;
+    });
+  }, [volume]);
+
   const handleLoopEnabled = useCallback((enabled: boolean) => {
     setLoopEnabled(enabled);
     void engineRef.current?.setLoopEnabled(enabled);
@@ -167,7 +184,15 @@ export default function App() {
             disabled={!hasFile}
             onPlayPause={handlePlayPause}
             onStop={handleStop}
-          />
+          >
+            <VolumeControl
+              volume={volume}
+              muted={muted}
+              disabled={!hasFile}
+              onVolumeChange={handleVolumeChange}
+              onMuteToggle={handleMuteToggle}
+            />
+          </Transport>
 
           <div className="controls">
             <TempoControl tempo={tempo} disabled={!hasFile} onChange={handleTempo} />

@@ -5,6 +5,8 @@ export function formatTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}.${tenths}`;
 }
 
+import type { ReactNode } from "react";
+
 interface TransportProps {
   isPlaying: boolean;
   currentTime: number;
@@ -12,6 +14,7 @@ interface TransportProps {
   disabled: boolean;
   onPlayPause: () => void;
   onStop: () => void;
+  children?: ReactNode;
 }
 
 export default function Transport({
@@ -21,6 +24,7 @@ export default function Transport({
   disabled,
   onPlayPause,
   onStop,
+  children,
 }: TransportProps) {
   return (
     <div className="transport">
@@ -45,6 +49,7 @@ export default function Transport({
         <span className="time-sep"> / </span>
         <span className="time-total">{formatTime(duration)}</span>
       </div>
+      {children}
     </div>
   );
 }

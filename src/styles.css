@@ -164,6 +164,25 @@ body {
   color: var(--text-dim);
 }
 
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 12px;
+}
+
+.volume-control input[type="range"] {
+  width: 110px;
+}
+
+.volume-btn {
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  padding: 4px;
+  min-height: 0;
+}
+
 /* --- controls --- */
 
 .controls {

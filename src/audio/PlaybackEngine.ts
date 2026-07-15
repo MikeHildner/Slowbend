@@ -146,6 +146,12 @@ export class PlaybackEngine {
     await this.node.schedule({ semitones });
   }
 
+  /** v: 0..1; ramped briefly to avoid clicks */
+  setVolume(v: number): void {
+    const clamped = Math.min(Math.max(v, 0), 1);
+    this.gain.gain.setTargetAtTime(clamped, this.ctx.currentTime, 0.02);
+  }
+
   async setLoop(loop: LoopRegion | null): Promise<void> {
     this.loop = loop;
     await this.applyLoop();
