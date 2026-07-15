@@ -1,0 +1,248 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #101014;
+  --surface: #1a1a21;
+  --surface-2: #22222b;
+  --border: #2e2e3a;
+  --text: #e8e9ed;
+  --text-dim: #9a9daa;
+  --accent: #f08a24;
+  --accent-soft: rgba(240, 138, 36, 0.15);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+}
+
+.tagline {
+  margin: 4px 0 0;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.error-banner {
+  background: #3a1d1d;
+  border: 1px solid #6e2c2c;
+  color: #f2b8b8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+/* --- file loading --- */
+
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  padding: 72px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dropzone:hover,
+.dropzone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dropzone-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.dropzone-sub {
+  margin: 8px 0 0;
+  color: var(--text-dim);
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.file-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-btn {
+  flex-shrink: 0;
+}
+
+/* --- waveform --- */
+
+.waveform {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.hint {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  text-align: center;
+  margin: 8px 0 16px;
+}
+
+/* --- transport --- */
+
+.transport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.transport-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.transport-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #14100a;
+}
+
+.transport-btn.primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.time-display {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.05rem;
+  margin-left: 8px;
+}
+
+.time-total,
+.time-sep {
+  color: var(--text-dim);
+}
+
+/* --- controls --- */
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.control-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.control-title {
+  font-weight: 600;
+}
+
+.control-value {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.control-row {
+  display: flex;
+  gap: 8px;
+}
+
+.control-note {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+.cents-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+/* --- shared form elements --- */
+
+button {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  min-height: 40px;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  min-height: 28px;
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 16, 20, 0.7);
+  font-size: 1.1rem;
+}
