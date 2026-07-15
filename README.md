@@ -11,7 +11,9 @@ tempo.
   to adjust, double-click it to remove
 - Tempo 25%–200% with no pitch change
 - Pitch ±12 semitones plus ±100 cents fine adjustment, with no tempo change
-- Play / pause / stop, Space-bar play/pause
+- Play / pause / stop, Space-bar play/pause, volume with mute
+- Installable PWA: works fully offline after the first visit (audio never
+  leaves the device — files are decoded entirely in the browser)
 
 ## Tech
 
@@ -29,12 +31,14 @@ which owns the AudioContext and is the single source of truth for playback time.
 
 ```sh
 npm install
-npm run dev     # dev server on http://localhost:5173
+npm run dev     # dev server on http://localhost:5173/slowbend/
 npm run build   # typecheck + production build to dist/
+npm run icons   # regenerate PNG app icons from public/icon.svg
+npm run deploy  # build + publish to hildner.org/slowbend (needs .env.deploy)
 ```
 
 ## Roadmap
 
-- PWA (installable, offline)
 - Android/iOS via Capacitor
 - Saved loops per song, gradual speed-up trainer, count-in
+- Latency-compensated playhead
