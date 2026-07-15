@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { PlaybackEngine, type LoopRegion } from "./audio/PlaybackEngine";
 import { computePeaks } from "./audio/peaks";
 import FileDrop from "./components/FileDrop";
+import Logo from "./components/Logo";
 import Waveform from "./components/Waveform";
 import Transport from "./components/Transport";
 import TempoControl from "./components/TempoControl";
@@ -125,8 +126,11 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Slowbend</h1>
-        <p className="tagline">slow it down · loop it · learn it</p>
+        <div className="brand">
+          <Logo size={38} />
+          <h1>Slowbend</h1>
+        </div>
+        <p className="tagline">slow it down · change the pitch · loop it</p>
       </header>
 
       {error && <div className="error-banner">{error}</div>}
