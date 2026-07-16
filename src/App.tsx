@@ -42,6 +42,10 @@ export default function App() {
       if (!engineRef.current) {
         engineRef.current = await PlaybackEngine.create();
         engineRef.current.onEnded = () => setIsPlaying(false);
+        engineRef.current.onEngineError = (message) => {
+          setIsPlaying(false);
+          setError(message);
+        };
         if (import.meta.env.DEV) {
           (window as unknown as { __engine: PlaybackEngine }).__engine =
             engineRef.current;

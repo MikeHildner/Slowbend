@@ -33,6 +33,7 @@ export class PlaybackEngine {
 
   duration = 0;
   onEnded: (() => void) | null = null;
+  onEngineError: ((message: string) => void) | null = null;
 
   private constructor(ctx: AudioContext, node: StretchNode, gain: GainNode) {
     this.ctx = ctx;
@@ -43,11 +44,24 @@ export class PlaybackEngine {
   /** Must be called from a user gesture (autoplay policy). */
   static async create(): Promise<PlaybackEngine> {
     const ctx = new AudioContext();
+    if (!ctx.audioWorklet) {
+      // audioWorklet only exists in secure contexts (https or localhost)
+      await ctx.close();
+      throw new Error(
+        "this browser is blocking the audio engine — make sure the address starts with https://",
+      );
+    }
     const node = await SignalsmithStretch(ctx);
     const gain = ctx.createGain();
     node.connect(gain);
     gain.connect(ctx.destination);
     const engine = new PlaybackEngine(ctx, node, gain);
+    node.onprocessorerror = () => {
+      engine.playing = false;
+      engine.onEngineError?.(
+        "The audio engine crashed — reload the page to recover.",
+      );
+    };
     await node.setUpdateInterval(0.05, (t) => engine.handleTimeUpdate(t));
     return engine;
   }
@@ -74,23 +88,19 @@ export class PlaybackEngine {
 
   async load(buffer: AudioBuffer): Promise<void> {
     await this.unload();
-    // Copy to the worklet in ~30s chunks, transferring each chunk instead of
-    // structured-cloning the whole song: peak overhead stays at one chunk and
-    // each copy leaves this thread's heap immediately.
-    const chunkFrames = 30 * buffer.sampleRate;
-    let end = 0;
-    for (let start = 0; start < buffer.length; start += chunkFrames) {
-      const stop = Math.min(start + chunkFrames, buffer.length);
-      const chunk: Float32Array[] = [];
-      for (let c = 0; c < buffer.numberOfChannels; c++) {
-        chunk.push(buffer.getChannelData(c).slice(start, stop));
-      }
-      end = await this.node.addBuffers(
-        chunk,
-        chunk.map((a) => a.buffer),
-      );
+    // Single addBuffers call with copied channels, transferred (not cloned) so
+    // the copies leave this thread's heap immediately. Do NOT split into
+    // multiple addBuffers chunks: the worklet's seek-mode process() miscounts
+    // when a read window spans two stored buffers (inputSamples never advances
+    // in its copy loop), throws, and the processor dies permanently — silence.
+    const channels: Float32Array[] = [];
+    for (let c = 0; c < buffer.numberOfChannels; c++) {
+      channels.push(buffer.getChannelData(c).slice());
     }
-    this.duration = end;
+    this.duration = await this.node.addBuffers(
+      channels,
+      channels.map((a) => a.buffer),
+    );
     // keep current tempo/pitch across file loads; clear any old loop
     await this.node.schedule({
       input: 0,
