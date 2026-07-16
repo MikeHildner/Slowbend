@@ -57,19 +57,40 @@ export class PlaybackEngine {
     return this.ctx.decodeAudioData(data);
   }
 
-  async load(buffer: AudioBuffer): Promise<void> {
+  /**
+   * Free the current song's audio in the worklet. Call before decoding the
+   * next file — mobile browsers don't have memory for two decoded songs.
+   */
+  async unload(): Promise<void> {
     await this.node.stop();
     this.playing = false;
     await this.node.dropBuffers();
-    const channels: Float32Array[] = [];
-    for (let c = 0; c < buffer.numberOfChannels; c++) {
-      channels.push(buffer.getChannelData(c));
-    }
-    this.duration = await this.node.addBuffers(channels);
+    this.duration = 0;
     this.loop = null;
     this.position = 0;
     this.lastInputTime = 0;
     this.lastInputStamp = performance.now();
+  }
+
+  async load(buffer: AudioBuffer): Promise<void> {
+    await this.unload();
+    // Copy to the worklet in ~30s chunks, transferring each chunk instead of
+    // structured-cloning the whole song: peak overhead stays at one chunk and
+    // each copy leaves this thread's heap immediately.
+    const chunkFrames = 30 * buffer.sampleRate;
+    let end = 0;
+    for (let start = 0; start < buffer.length; start += chunkFrames) {
+      const stop = Math.min(start + chunkFrames, buffer.length);
+      const chunk: Float32Array[] = [];
+      for (let c = 0; c < buffer.numberOfChannels; c++) {
+        chunk.push(buffer.getChannelData(c).slice(start, stop));
+      }
+      end = await this.node.addBuffers(
+        chunk,
+        chunk.map((a) => a.buffer),
+      );
+    }
+    this.duration = end;
     // keep current tempo/pitch across file loads; clear any old loop
     await this.node.schedule({
       input: 0,

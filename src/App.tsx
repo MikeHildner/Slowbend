@@ -48,19 +48,26 @@ export default function App() {
         }
       }
       const engine = engineRef.current;
-      const buffer = await engine.decode(file);
-      await engine.load(buffer);
-      setPeaks(computePeaks(buffer));
-      setDuration(engine.duration);
-      setFileName(file.name);
+      // Free the previous song before decoding the next one — phones don't
+      // have memory headroom for two decoded songs at once.
+      await engine.unload();
+      setPeaks(null);
+      setFileName(null);
+      setDuration(0);
       setIsPlaying(false);
       setLoop(null);
+      const buffer = await engine.decode(file);
+      const peaks = computePeaks(buffer);
+      await engine.load(buffer);
+      setPeaks(peaks);
+      setDuration(engine.duration);
+      setFileName(file.name);
       // tempo/pitch settings intentionally persist across file loads
     } catch (err) {
       console.error(err);
-      setError(
-        `Could not load "${file.name}" — it may not be a supported audio format.`,
-      );
+      const detail =
+        err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+      setError(`Could not load "${file.name}" — ${detail}`);
     } finally {
       setLoading(false);
     }

@@ -32,8 +32,12 @@ declare module "signalsmith-stretch" {
     ): Promise<unknown>;
     stop(when?: number): Promise<unknown>;
     schedule(schedule: StretchSchedule, adjustPrevious?: boolean): Promise<unknown>;
-    /** append channel buffers (one Float32Array per channel, equal lengths); resolves to new buffer end time in seconds */
-    addBuffers(sampleBuffers: Float32Array[]): Promise<number>;
+    /**
+     * Append channel buffers (one Float32Array per channel, equal lengths);
+     * resolves to new buffer end time in seconds. Pass `transfer` to move the
+     * underlying ArrayBuffers instead of cloning them (detaches the arrays).
+     */
+    addBuffers(sampleBuffers: Float32Array[], transfer?: Transferable[]): Promise<number>;
     dropBuffers(toSeconds?: number): Promise<{ start: number; end: number } | void>;
     latency(): Promise<number>;
     configure(config: {
