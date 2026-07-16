@@ -238,6 +238,10 @@ export default function App() {
       )}
 
       {loading && <div className="loading-overlay">Decoding audio…</div>}
+
+      <footer className="app-footer">
+        v{__APP_VERSION__} · {__BUILD_INFO__}
+      </footer>
     </div>
   );
 }
